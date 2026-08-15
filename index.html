@@ -1,0 +1,226 @@
+﻿<!doctype html>
+<html lang="zh-CN" data-theme="rose">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Lens Diary｜MVP V3.4</title>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<div class="app">
+<header class="topbar">
+  <div class="brand"><div class="logo">LD</div><div><h1>Lens Diary</h1><p>你的美瞳照片档案</p></div></div>
+  <button class="ghost" id="settingsBtn">设置</button>
+</header>
+<main>
+  <section id="homeView" class="view active"><div id="homeContent"></div></section>
+  <section id="lensesView" class="view">
+    <div class="section-head"><h3>美瞳档案</h3><span id="lensCountText">0 款</span></div>
+    <div class="searchbox"><input id="lensSearch" type="search" placeholder="搜品牌、颜色、直径、锁边、感受…" /></div>
+    <div id="lensSearchNote" class="result-note"></div><div id="lensList" class="cards"></div>
+  </section>
+  <section id="diaryView" class="view">
+    <div class="section-head"><h3>照片日记</h3><span id="diaryCountText">0 条</span></div>
+    <div class="searchbox"><input id="diarySearch" type="search" placeholder="搜美瞳、场景、日期或日记内容…" /></div>
+    <div id="diarySearchNote" class="result-note"></div><div id="diaryList" class="cards"></div>
+  </section>
+  <section id="communityView" class="view">
+    <div class="community-hero">
+      <div class="eyebrow">Lens Diary 社区</div>
+      <h3>分享真实体验，不制造消费焦虑。</h3>
+      <p>这里既可以种草，也可以避雷。每条分享都鼓励写清优点、缺点、适合谁和不适合谁，而不是只说“绝了”“必买”。</p>
+      <div class="community-principles">
+        <span class="chip">真实佩戴</span><span class="chip">优缺点都写</span><span class="chip">拒绝焦虑</span><span class="chip">不以购买为目标</span>
+      </div>
+    </div>
+    <div class="community-tabs">
+      <button class="community-tab active" data-community-filter="all">发现</button>
+      <button class="community-tab" data-community-filter="recommend">种草</button>
+      <button class="community-tab" data-community-filter="avoid">避雷</button>
+    </div>
+    <div id="communityFeed" class="community-feed"></div>
+    <div class="community-note">当前是社区 MVP 演示：内容为示例数据，点赞、收藏只保存在当前浏览器，不会上传到公开社区。</div>
+  </section>
+
+
+</main>
+<button class="fab" id="fab">＋</button>
+<nav>
+<button data-view="homeView" class="active"><strong>⌂</strong>首页</button>
+<button data-view="lensesView"><strong>◉</strong>档案</button>
+<button data-view="diaryView"><strong>▣</strong>日记</button>
+<button data-view="communityView"><strong>✦</strong>社区</button>
+
+</nav>
+</div>
+
+
+<div class="modal" id="settingsModal"><div class="sheet">
+  <div class="sheet-head"><h3>设置</h3><button class="close" data-close="settingsModal">×</button></div>
+
+  <div class="settings-list">
+    <div class="settings-row" style="display:block">
+      <div><b>界面主题</b><p>换一种更适合你的 Lens Diary 氛围。</p></div>
+      <div class="theme-grid">
+        <button class="theme-dot" data-theme-choice="rose"><div class="theme-swatch" style="background:linear-gradient(135deg,#b86f76,#f2dfe1)"></div><span>玫瑰</span></button>
+        <button class="theme-dot" data-theme-choice="sage"><div class="theme-swatch" style="background:linear-gradient(135deg,#6f8c78,#dce8df)"></div><span>鼠尾草</span></button>
+        <button class="theme-dot" data-theme-choice="lavender"><div class="theme-swatch" style="background:linear-gradient(135deg,#7d6c98,#e5dff0)"></div><span>薰衣草</span></button>
+        <button class="theme-dot" data-theme-choice="ocean"><div class="theme-swatch" style="background:linear-gradient(135deg,#5e8797,#dce9ee)"></div><span>海盐</span></button>
+        <button class="theme-dot" data-theme-choice="mono"><div class="theme-swatch" style="background:linear-gradient(135deg,#3a3a3a,#e5e5e5)"></div><span>黑白</span></button>
+      </div>
+    </div>
+
+    <div class="settings-row">
+      <div><b>本地数据</b><p>当前 MVP 的档案和照片只保存在这个浏览器里。</p></div>
+      <span class="chip">本地</span>
+    </div>
+
+    <div class="settings-row">
+      <div><b>重置 Lens Diary</b><p>清空当前浏览器内的所有测试数据。</p></div>
+      <button class="danger" id="resetInsideSettings" type="button">重置</button>
+    </div>
+  </div>
+</div></div>
+
+<div class="modal" id="choiceModal"><div class="sheet">
+<div class="sheet-head"><h3>记录什么？</h3><button class="close" data-close="choiceModal">×</button></div>
+<div class="cards">
+<button class="card" id="addLensChoice" style="text-align:left"><b>＋ 添加一款美瞳</b><div class="lens-sub">可先传淘宝商品截图自动识别参数</div></button>
+<button class="card" id="addDiaryChoice" style="text-align:left"><b>＋ 写一条照片日记</b><div class="lens-sub">可一次上传多张照片</div></button>
+</div></div></div>
+
+<div class="modal" id="lensModal"><div class="sheet">
+<div class="sheet-head"><h3 id="lensModalTitle">添加美瞳</h3><button class="close" data-close="lensModal">×</button></div>
+<form id="lensForm" class="form-grid">
+<input type="hidden" id="lensEditId" />
+
+<div class="ocrbox">
+<h4>淘宝 / 商品截图智能识别</h4>
+<p>先上传商品详情截图。我会优先识别商品卡片区域，并尝试填入名称、DIA、着色直径、含水量、基弧、周期等。截图里没有的信息不会乱猜，识别后都可以手动更正。</p>
+<input id="ocrImage" type="file" accept="image/*" />
+<div class="actions"><button class="secondary" type="button" id="ocrBtn">识别并填入</button></div>
+<div class="progress" id="ocrProgress"><i></i></div>
+<div class="ocr-status" id="ocrStatus"></div>
+<details id="ocrDebug" style="display:none;margin-top:8px">
+  <summary style="font-size:12px;color:var(--muted);cursor:pointer">查看识别到的原始文字</summary>
+  <pre id="ocrRawText" style="white-space:pre-wrap;font-size:11px;line-height:1.45;background:#f7f5f3;border-radius:12px;padding:10px;max-height:150px;overflow:auto"></pre>
+</details>
+</div>
+
+<div class="field"><label>品牌 *</label>
+<select id="brandSelect"><option value="">请选择品牌</option><option>OLENS</option><option>moody</option><option>可啦啦</option><option>海俪恩</option><option>博士伦</option><option>库博</option><option>视客</option><option>蜜拉贝儿</option><option value="__custom">其他 / 自定义</option></select>
+<input id="brandCustom" class="custom-field" placeholder="输入品牌名称" />
+</div>
+
+<div class="field"><label>产品名称 *</label><input id="productName" required placeholder="例如：冰葡萄灰" /></div>
+
+<div class="form-two">
+<div class="field"><label>颜色</label><select id="colorSelect"><option value="">请选择</option><option>灰色</option><option>棕色</option><option>黑色</option><option>蓝色</option><option>绿色</option><option>紫色</option><option>粉色</option><option value="__custom">其他 / 自定义</option></select><input id="colorCustom" class="custom-field" placeholder="如灰棕、橄榄绿" /></div>
+<div class="field"><label>镜片直径 DIA</label><select id="diaSelect"><option value="">暂不填</option><option>13.8 mm</option><option>14.0 mm</option><option>14.1 mm</option><option>14.2 mm</option><option>14.5 mm</option><option value="__custom">其他 / 自定义</option></select><input id="diaCustom" class="custom-field" placeholder="如 14.3 mm" /></div>
+</div>
+
+<div class="form-two">
+<div class="field"><label>着色直径 G.DIA</label><select id="gdiaSelect"><option value="">暂不填</option><option>12.8 mm</option><option>13.0 mm</option><option>13.2 mm</option><option>13.4 mm</option><option>13.5 mm</option><option>13.6 mm</option><option>13.8 mm</option><option>14.0 mm</option><option value="__custom">其他 / 自定义</option></select><input id="gdiaCustom" class="custom-field" placeholder="如 13.3 mm" /></div>
+<div class="field"><label>锁边</label><select id="limbalSelect"><option value="">暂不填</option><option>无锁边</option><option>浅锁边</option><option>明显锁边</option><option>渐变锁边</option><option value="__custom">其他 / 自定义</option></select><input id="limbalCustom" class="custom-field" placeholder="自定义锁边描述" /></div>
+</div>
+
+<div class="form-two">
+<div class="field"><label>含水量</label><select id="waterSelect"><option value="">暂不填</option><option>38%</option><option>40%</option><option>42%</option><option>45%</option><option>48%</option><option>50%</option><option>55%</option><option>58%</option><option value="__custom">其他 / 自定义</option></select><input id="waterCustom" class="custom-field" placeholder="如 43%" /></div>
+<div class="field"><label>基弧 BC</label><select id="bcSelect"><option value="">暂不填</option><option>8.5 mm</option><option>8.6 mm</option><option>8.7 mm</option><option>8.8 mm</option><option value="__custom">其他 / 自定义</option></select><input id="bcCustom" class="custom-field" placeholder="如 8.55 mm" /></div>
+</div>
+
+<div class="field"><label>周期</label><select id="cycleSelect"><option value="">暂不填</option><option>日抛</option><option>月抛</option><option>半年抛</option><option>年抛</option><option value="__custom">其他 / 自定义</option></select><input id="cycleCustom" class="custom-field" placeholder="自定义周期" /></div>
+
+<div class="form-two">
+<div class="field"><label>舒适度</label><select id="comfort"><option value="5">5 很舒服</option><option value="4">4 比较舒服</option><option value="3">3 一般</option><option value="2">2 偏干</option><option value="1">1 不舒服</option></select></div>
+<div class="field"><label>整体评分</label><select id="rating"><option value="5">5 分</option><option value="4">4 分</option><option value="3">3 分</option><option value="2">2 分</option><option value="1">1 分</option></select></div>
+</div>
+
+<div class="field"><label>一句话感受</label><textarea id="lensNote" placeholder="显色、自然度、舒适度……"></textarea></div>
+<div class="field">
+<label>产品主图（1张）</label>
+<input id="productImageInput" type="file" accept="image/*" />
+<div class="lens-sub">用于档案页展示。上传后可以拖动图片、调整缩放，决定最终裁切中心。</div>
+<div id="productImagePreview" class="preview-thumbs"></div>
+<div class="actions" id="productImageActions" style="display:none;margin-top:0">
+  <button type="button" class="secondary" id="reCropProductBtn">重新调整裁切</button>
+</div>
+</div>
+<div class="field"><label>佩戴 / 补充照片（可多选）</label><input id="lensImages" type="file" accept="image/*" multiple /><div class="lens-sub">新选择的照片会追加；保存前可以移除。</div><div id="lensImagePreview" class="preview-thumbs"></div></div>
+<div class="savebar"><button type="button" class="secondary" data-close="lensModal">取消</button><button type="submit" class="primary">保存档案</button></div>
+<div class="savebar" id="lensDeleteBar" style="display:none"><button type="button" class="danger" id="deleteLensBtn">删除这条档案</button></div>
+</form></div></div>
+
+<div class="modal" id="diaryModal"><div class="sheet">
+<div class="sheet-head"><h3 id="diaryModalTitle">写照片日记</h3><button class="close" data-close="diaryModal">×</button></div>
+<form id="diaryForm" class="form-grid">
+<input type="hidden" id="diaryEditId" />
+<div class="tip">可以一次上传多张不同尺寸的照片。原图不会被裁掉；日记列表统一用 4:5 预览，点开后按原始比例左右滑动查看。</div>
+<div class="field">
+  <label>照片（可多选）*</label>
+  <input id="diaryImages" type="file" accept="image/*" multiple />
+  <div id="diaryImagePreview" class="preview-thumbs"></div>
+  <div id="diaryCoverActions" class="diary-cover-actions">
+    <button type="button" class="secondary" id="adjustDiaryCoverBtn">调整封面构图</button>
+  </div>
+</div>
+<div class="field"><label>当天戴的美瞳 *</label><select id="diaryLensSelect"></select></div>
+<div class="form-two"><div class="field"><label>日期</label><input id="diaryDate" type="date" /></div><div class="field"><label>场景</label><select id="diaryScene"><option>日常</option><option>拍照</option><option>约会</option><option>上学 / 上班</option><option>旅行</option><option>其他</option></select></div></div>
+<div class="field"><label>佩戴感受</label><textarea id="diaryNote" placeholder="显色、妆容适配、舒适度……"></textarea></div>
+<div class="savebar"><button type="button" class="secondary" data-close="diaryModal">取消</button><button type="submit" class="primary">保存日记</button></div>
+<div class="savebar" id="diaryDeleteBar" style="display:none"><button type="button" class="danger" id="deleteDiaryBtn">删除这条日记</button></div>
+</form></div></div>
+
+
+<div class="modal" id="cropModal"><div class="sheet">
+  <div class="sheet-head"><h3>调整产品主图</h3><button class="close" data-close="cropModal">×</button></div>
+  <div class="crop-help">拖动图片调整中心，使用滑杆缩放。白色方框就是档案页最终显示区域。</div>
+  <div class="crop-stage" id="cropStage">
+    <img id="cropImage" alt="待裁切图片" />
+    <div class="crop-grid"></div>
+  </div>
+  <div class="zoom-row">
+    <div class="zoom-label">−</div>
+    <input id="cropZoom" type="range" min="1" max="3" step="0.01" value="1" />
+    <div class="zoom-label">＋</div>
+  </div>
+  <div class="savebar">
+    <button type="button" class="secondary" id="cropCancelBtn">取消</button>
+    <button type="button" class="primary" id="cropSaveBtn">使用这个裁切</button>
+  </div>
+</div></div>
+
+
+<div class="modal" id="diaryCoverModal"><div class="sheet">
+  <div class="sheet-head"><h3>调整日记封面</h3><button class="close" data-close="diaryCoverModal">×</button></div>
+  <div class="crop-help">只调整“列表里的封面怎么显示”，不会裁掉或修改原图。拖动改变中心，滑杆改变缩放。</div>
+  <div class="diary-cover-stage" id="diaryCoverStage">
+    <img class="cover-bg" id="diaryCoverBg" alt="">
+    <img class="cover-fg" id="diaryCoverFg" alt="">
+    <div class="diary-cover-grid"></div>
+  </div>
+  <div class="zoom-row">
+    <div class="zoom-label">−</div>
+    <input id="diaryCoverZoom" type="range" min="1" max="2.6" step="0.01" value="1" />
+    <div class="zoom-label">＋</div>
+  </div>
+  <div class="savebar">
+    <button type="button" class="secondary" id="diaryCoverCancel">取消</button>
+    <button type="button" class="primary" id="diaryCoverSave">保存封面构图</button>
+  </div>
+</div></div>
+
+<div class="modal viewer-modal" id="viewerModal">
+  <div class="viewer-shell">
+    <button class="viewer-close" id="viewerClose">×</button>
+    <div class="viewer-track" id="viewerTrack"></div>
+    <div class="viewer-count" id="viewerCount">1 / 1</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/app.js"></script>
+</body>
+</html>
