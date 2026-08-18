@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>Lens Diary｜MVP V3.4</title>
+<title>Lens Diary｜MVP V3.5</title>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <link rel="stylesheet" href="css/style.css" />
 </head>
@@ -17,7 +17,7 @@
   <section id="homeView" class="view active"><div id="homeContent"></div></section>
   <section id="lensesView" class="view">
     <div class="section-head"><h3>美瞳档案</h3><span id="lensCountText">0 款</span></div>
-    <div class="searchbox"><input id="lensSearch" type="search" placeholder="搜品牌、颜色、直径、锁边、感受…" /></div>
+    <div class="searchbox"><input id="lensSearch" type="search" placeholder="搜品牌、渠道、颜色、直径、锁边、感受…" /></div>
     <div id="lensSearchNote" class="result-note"></div><div id="lensList" class="cards"></div>
   </section>
   <section id="diaryView" class="view">
@@ -86,7 +86,7 @@
 <div class="modal" id="choiceModal"><div class="sheet">
 <div class="sheet-head"><h3>记录什么？</h3><button class="close" data-close="choiceModal">×</button></div>
 <div class="cards">
-<button class="card" id="addLensChoice" style="text-align:left"><b>＋ 添加一款美瞳</b><div class="lens-sub">可先传淘宝商品截图自动识别参数</div></button>
+<button class="card" id="addLensChoice" style="text-align:left"><b>＋ 添加一款美瞳</b><div class="lens-sub">可先传商品截图自动识别参数，识别不全也能继续补录</div></button>
 <button class="card" id="addDiaryChoice" style="text-align:left"><b>＋ 写一条照片日记</b><div class="lens-sub">可一次上传多张照片</div></button>
 </div></div></div>
 
@@ -97,7 +97,7 @@
 
 <div class="ocrbox">
 <h4>淘宝 / 商品截图智能识别</h4>
-<p>先上传商品详情截图。我会优先识别商品卡片区域，并尝试填入名称、DIA、着色直径、含水量、基弧、周期等。截图里没有的信息不会乱猜，识别后都可以手动更正。</p>
+<p>上传商品详情截图后，会尽量分别识别品牌、产品名、购买渠道、DIA、着色直径、含水量、基弧、周期等。识别到什么就先填什么，没识别出的字段保持为空，不会阻断录入；所有结果都可以手动修改。</p>
 <input id="ocrImage" type="file" accept="image/*" />
 <div class="actions"><button class="secondary" type="button" id="ocrBtn">识别并填入</button></div>
 <div class="progress" id="ocrProgress"><i></i></div>
@@ -108,12 +108,19 @@
 </details>
 </div>
 
-<div class="field"><label>品牌 *</label>
-<select id="brandSelect"><option value="">请选择品牌</option><option>OLENS</option><option>moody</option><option>可啦啦</option><option>海俪恩</option><option>博士伦</option><option>库博</option><option>视客</option><option>蜜拉贝儿</option><option value="__custom">其他 / 自定义</option></select>
-<input id="brandCustom" class="custom-field" placeholder="输入品牌名称" />
+<div class="field"><label>品牌</label>
+<input id="brandCustom" class="custom-field show" list="brandSuggestions" placeholder="搜索或输入任意品牌" autocomplete="off" />
+<datalist id="brandSuggestions"></datalist>
+<select id="brandSelect"><option value="">常见品牌快捷选择</option><option>OLENS</option><option>moody</option><option>可啦啦</option><option>海俪恩</option><option>博士伦</option><option>库博</option><option>蜜拉贝儿</option><option value="__custom">其他 / 自定义</option></select>
+<div id="brandRecent" class="actions" style="margin-top:6px;gap:6px;flex-wrap:wrap"></div>
 </div>
 
-<div class="field"><label>产品名称 *</label><input id="productName" required placeholder="例如：冰葡萄灰" /></div>
+<div class="field"><label>产品名称</label><input id="productName" placeholder="例如：冰葡萄灰" /></div>
+
+<div class="field"><label>购买渠道</label>
+<select id="purchaseChannelSelect"><option value="">暂不填</option><option>视客</option><option>淘宝</option><option>天猫</option><option>京东</option><option>品牌官方渠道</option><option>线下门店</option><option value="__custom">其他 / 自定义</option></select>
+<input id="purchaseChannelCustom" class="custom-field" placeholder="输入购买渠道" />
+</div>
 
 <div class="form-two">
 <div class="field"><label>颜色</label><select id="colorSelect"><option value="">请选择</option><option>灰色</option><option>棕色</option><option>黑色</option><option>蓝色</option><option>绿色</option><option>紫色</option><option>粉色</option><option value="__custom">其他 / 自定义</option></select><input id="colorCustom" class="custom-field" placeholder="如灰棕、橄榄绿" /></div>
@@ -222,5 +229,6 @@
 <div class="toast" id="toast"></div>
 
 <script src="js/app.js"></script>
+<script src="js/v35-product-entry.js"></script>
 </body>
 </html>
